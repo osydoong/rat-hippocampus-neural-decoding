@@ -1,11 +1,11 @@
-# data and weights
+# data and results
 data/*
+results/*
 
 # Python
 __pycache__/
 *.pyc
 .env
-main.py
 
 # outputs
 # *.png
