@@ -84,19 +84,12 @@ def eval_one_epoch(model, loader, device):
 
 
 def train_one_epoch_shared(model, loaders_dict, optimizer, device):
-    """
-    یک epoch آموزش برای SharedRNNModel.
-    loaders_dict: {'achilles': loader, 'buddy': loader, ...}
-
-    استراتژی: در هر epoch، از همه loaderها به‌صورت نوبتی batch برمی‌داریم.
-    برمی‌گرداند: dict {rat: (loss, r2)}
-    """
+    
     model.train()
-    # ساختن iterator برای هر موش
+    
     iterators = {rat: iter(loader) for rat, loader in loaders_dict.items()}
     rat_names = list(loaders_dict.keys())
 
-    # تعداد step = حداکثر تعداد batch در میان همه موش‌ها
     max_steps = max(len(loader) for loader in loaders_dict.values())
 
     stats = {rat: {'loss': 0.0, 'r2': 0.0, 'n': 0} for rat in rat_names}
@@ -109,7 +102,6 @@ def train_one_epoch_shared(model, loaders_dict, optimizer, device):
             try:
                 batch = next(iterators[rat])
             except StopIteration:
-                # این موش batch ندارد — iterator را reset می‌کنیم
                 iterators[rat] = iter(loaders_dict[rat])
                 batch = next(iterators[rat])
 
