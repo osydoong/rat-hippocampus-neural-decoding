@@ -1,13 +1,3 @@
-"""
-utils.py — توابع کمکی مشترک برای هر سه سری آزمایش
-
-شامل:
-  - collate_fn:     ساختن batch با padding و mask
-  - r2_score:       محاسبه R²
-  - masked_mse:     MSE فقط روی timestep‌های واقعی (نه padding)
-  - train_one_epoch / eval_one_epoch
-"""
-
 import torch
 import torch.nn as nn
 from torch.nn.utils.rnn import pad_sequence
@@ -93,10 +83,6 @@ def eval_one_epoch(model, loader, device):
     return total_loss / n_batches, total_r2 / n_batches
 
 
-# ─────────────────────────────────────────────
-#  حلقه آموزش / ارزیابی — سری دوم و سوم
-# ─────────────────────────────────────────────
-
 def train_one_epoch_shared(model, loaders_dict, optimizer, device):
     """
     یک epoch آموزش برای SharedRNNModel.
@@ -148,7 +134,6 @@ def train_one_epoch_shared(model, loaders_dict, optimizer, device):
         torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
 
-    # میانگین
     return {
         rat: (s['loss'] / max(s['n'], 1), s['r2'] / max(s['n'], 1))
         for rat, s in stats.items()
@@ -157,10 +142,7 @@ def train_one_epoch_shared(model, loaders_dict, optimizer, device):
 
 @torch.no_grad()
 def eval_one_epoch_shared(model, loaders_dict, device):
-    """
-    ارزیابی SharedRNNModel روی همه موش‌ها.
-    برمی‌گرداند: dict {rat: (loss, r2)}
-    """
+    
     model.eval()
     results = {}
 

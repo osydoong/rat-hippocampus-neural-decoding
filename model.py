@@ -5,7 +5,7 @@ from torch.nn.utils.rnn import pack_padded_sequence, pad_packed_sequence
 class MLPEncoder(nn.Module):
     def __init__(self, input_dim: int, latent_dim: int):
         super().__init__()
-        hidden = max(input_dim, latent_dim)          # لایه میانی
+        hidden = max(input_dim, latent_dim)      
         self.net = nn.Sequential(
             nn.Linear(input_dim, hidden),
             nn.ReLU(),
@@ -76,19 +76,8 @@ class RatModel(nn.Module):
         return out
 
 
-# ─────────────────────────────────────────────
-#  سری دوم و سوم: RNN مشترک — Encoder مجزا
-# ─────────────────────────────────────────────
-
 class SharedRNNModel(nn.Module):
-    """
-    برای چند موش با تعداد نورون متفاوت:
-      - هر موش Encoder مخصوص خود دارد
-      - یک RNN مشترک
-      - یک Regressor مشترک
 
-    rat_dims: dict  مثلاً {'achilles': 120, 'buddy': 48, ...}
-    """
     def __init__(self, rat_dims: dict, latent_dim: int = 64,
                  hidden_dim: int = 64, rnn_type: str = 'GRU',
                  num_layers: int = 1):
@@ -105,11 +94,7 @@ class SharedRNNModel(nn.Module):
         self.regressor  = MLPRegressor(hidden_dim)
 
     def forward(self, x, lengths, rat_name: str):
-        """
-        x:        [N, K_max, M_rat]
-        lengths:  [N]
-        rat_name: کدام موش (برای انتخاب Encoder)
-        """
+        
         z      = self.encoders[rat_name](x)             # [N, K_max, d]
         packed = pack_padded_sequence(
             z, lengths.cpu(), batch_first=True, enforce_sorted=False
@@ -119,7 +104,7 @@ class SharedRNNModel(nn.Module):
         return out
 
     def freeze_shared(self):
-        """فریز کردن RNN و Regressor برای سری سوم"""
+        
         for param in self.recurrent.parameters():
             param.requires_grad = False
         for param in self.regressor.parameters():
@@ -132,6 +117,6 @@ class SharedRNNModel(nn.Module):
             param.requires_grad = True
 
     def add_rat_encoder(self, rat_name: str, input_dim: int):
-        """اضافه کردن Encoder جدید برای موش چهارم در سری سوم"""
+        
         self.encoders[rat_name] = MLPEncoder(input_dim, 
                                              self.recurrent.rnn.input_size)
