@@ -14,7 +14,7 @@ class MLPEncoder(nn.Module):
         )
 
     def forward(self, x):
-        # x: [N, K, M]  →  out: [N, K, d]
+        # in: [N, K, M]  →  out: [N, K, d]
         return self.net(x)
 
 
